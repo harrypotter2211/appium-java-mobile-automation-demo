@@ -149,6 +149,10 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                         <compilerArgs>
+                               <arg>--add-exports</arg>
+                               <arg>jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                           </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

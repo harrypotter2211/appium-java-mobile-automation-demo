@@ -4,50 +4,39 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql-db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: accountdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_USER: accountuser
+      MYSQL_PASSWORD: accountpass
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
-      - app-network
+      - spring-network
 
-  account-service:
-    image: harrypotter22/newrepo.3.2  # or build from source: build: .
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: account-service
-    ports:
-      - "8085:8080"
-    depends_on:
-      - mysql
+    restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/accountdb
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-    networks:
-      - app-network
-
-  # Optional SonarQube setup (comment out if unused)
-  sonarqube:
-    image: sonarqube:10.3-community
-    container_name: sonarqube
-    environment:
-      SONAR_JDBC_URL: jdbc:mysql://mysql:3306/accountdb
-      SONAR_JDBC_USERNAME: user
-      SONAR_JDBC_PASSWORD: password
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/accountdb
+      SPRING_DATASOURCE_USERNAME: accountuser
+      SPRING_DATASOURCE_PASSWORD: accountpass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
-      - "9000:9000"
+      - "8080:8080"
     depends_on:
       - mysql
     networks:
-      - app-network
+      - spring-network
 
 volumes:
-  mysql-data:
+  mysql_data:
 
 networks:
-  app-network:
-    driver: bridge
+  spring-network:

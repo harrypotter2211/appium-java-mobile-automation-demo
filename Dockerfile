@@ -1,17 +1,14 @@
-# Use minimal Java 11 runtime base image
-FROM eclipse-temurin:11-jre-alpine
+# Use a lightweight Java 17 JRE image
+FROM eclipse-temurin:17-jre-alpine
 
-# Create a temp volume for Spring Boot
+# Create a volume for Spring Boot temp files
 VOLUME /tmp
 
-# Copy the JAR built by Maven
+# Copy built jar into the image
 COPY target/account-service-0.0.1-SNAPSHOT.jar app.jar
 
-# Avoid Spring Boot caching bugs
-RUN sh -c 'touch /app.jar'
-
-# Start the app
+# Run the application
 ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
 
-# Expose default Spring Boot port
+# Expose application port
 EXPOSE 8083

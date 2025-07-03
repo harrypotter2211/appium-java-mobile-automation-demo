@@ -1,14 +1,25 @@
-# Use a lightweight Java 17 JRE image
-FROM eclipse-temurin:17-jre-alpine
+# Stage 1: Build the application using Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
-# Create a volume for Spring Boot temp files
-VOLUME /tmp
+WORKDIR /app
 
-# Copy built jar into the image
-COPY target/account-service-0.0.1-SNAPSHOT.jar app.jar
+# Copy project files
+COPY pom.xml .
+COPY src ./src
 
-# Run the application
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
+# Package the application (skipping tests if needed: use -DskipTests)
+RUN mvn clean package -DskipTests
 
-# Expose application port
-EXPOSE 8083
+# Stage 2: Run the packaged Spring Boot application using a minimal JRE image
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# Copy the jar from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Expose port (change if your app runs on a different port)
+EXPOSE 8080
+
+# Run the jar
+ENTRYPOINT ["java", "-jar", "app.jar"]

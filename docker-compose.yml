@@ -1,48 +1,52 @@
 version: '3.8'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: accountdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  account-service:
+    image: harrypotter22/newrepo.3.2  # or build from source: build: .
     container_name: account-service
     ports:
       - "8085:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/accountdb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
-      - db
-    networks:
-      - app-network
-
-  db:
-    image: mysql:8.0
-    container_name: mysql-db
-    ports:
-      - "3307:3306"
+      - mysql
     environment:
-      MYSQL_DATABASE: accountdb
-      MYSQL_ROOT_PASSWORD: root
-    volumes:
-      - dbdata:/var/lib/mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/accountdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
     networks:
       - app-network
 
-  sonar:
-    image: sonarqube:9.9-community
+  # Optional SonarQube setup (comment out if unused)
+  sonarqube:
+    image: sonarqube:10.3-community
     container_name: sonarqube
+    environment:
+      SONAR_JDBC_URL: jdbc:mysql://mysql:3306/accountdb
+      SONAR_JDBC_USERNAME: user
+      SONAR_JDBC_PASSWORD: password
     ports:
       - "9000:9000"
-    environment:
-      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    depends_on:
+      - mysql
     networks:
       - app-network
 
 volumes:
-  dbdata:
+  mysql-data:
 
 networks:
   app-network:

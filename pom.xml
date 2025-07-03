@@ -79,6 +79,20 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- ExtentReports -->
+    <dependency>
+      <groupId>com.aventstack</groupId>
+      <artifactId>extentreports</artifactId>
+      <version>5.1.1</version>
+    </dependency>
+
+    <!-- Commons IO -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+
     <!-- Spring Boot Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
